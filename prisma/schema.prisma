@@ -19,14 +19,110 @@ model User {
   role        Role    @default(USER)
   activateKey String
   active      Boolean @default(false)
+  member      Member?
 
   @@map("users")
+}
+
+model Person {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cpf           String         @unique
+  name          String
+  phoneNumber   String
+  email         String
+  birthDate     DateTime?
+  gender        String?
+  subscriptions Subscription[]
+  members       Member[]
+
+  @@map("persons")
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cnpj          String         @unique
+  name          String
+  companyName   String?
+  email         String
+  contactName   String?
+  phoneNumber   String?
+  subscriptions Subscription[]
+
+  @@map("companies")
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptionType SubscriptionType
+  subscriptionPlan SubscriptionPlan
+  startDate        DateTime
+  price            Float
+  payment          PaymentType
+  status           SubscriptionStatus
+
+  person    Person?  @relation(fields: [personId], references: [id])
+  personId  String?
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId String?
+  members   Member[]
+
+  @@map("subscriptions")
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean
+
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+  person         Person       @relation(fields: [personId], references: [id])
+  personId       String
+  user           User?        @relation(fields: [userId], references: [id])
+  userId         String?      @unique
+
+  @@map("members")
 }
 
 enum Role {
   ADMIN
   USER
   COMPANY_USER
+  COMPANY_ADMIN
   PROFESSIONAL
   MEMBER
+}
+
+enum SubscriptionType {
+  FAMILY
+  CORPORATE
+}
+
+enum SubscriptionPlan {
+  INDIVIDUAL
+  FAMILY
+  COMPANY
+}
+
+enum SubscriptionStatus {
+  PENDING
+  WAITING_PAYMENT
+  ACTIVE
+  PAUSED
+  CANCELED
+}
+
+enum PaymentType {
+  MONTHLY
+  YEARLY
 }

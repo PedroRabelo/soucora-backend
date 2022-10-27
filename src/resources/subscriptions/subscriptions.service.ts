@@ -1,0 +1,59 @@
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateSubscriptionDto } from './dto/create-subscription.dto';
+import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+
+@Injectable()
+export class SubscriptionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(dto: CreateSubscriptionDto) {
+    const createSubscription: Prisma.SubscriptionUncheckedCreateInput = {
+      startDate: new Date(),
+      status: 'PENDING',
+      payment: dto.payment,
+      price: dto.price,
+      subscriptionPlan: dto.subscriptionPlan,
+      subscriptionType: dto.subscriptionType,
+    };
+
+    const { person } = dto;
+    const createPerson: Prisma.PersonCreateOrConnectWithoutSubscriptionsInput =
+      {
+        where: {
+          cpf: person.cpf,
+        },
+        create: {
+          ...person,
+        },
+      };
+
+    const data: Prisma.SubscriptionCreateInput = {
+      ...createSubscription,
+      person: createPerson,
+    };
+
+    // TODO Verificar se a assinatura é de pessoa ou empresa
+
+    return await this.prisma.subscription.create({
+      data: data,
+    });
+  }
+
+  findAll() {
+    return `This action returns all subscriptions`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} subscription`;
+  }
+
+  update(id: number, updateSubscriptionDto: UpdateSubscriptionDto) {
+    return `This action updates a #${id} subscription`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} subscription`;
+  }
+}
