@@ -9,9 +9,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { SubscriptionsModule } from './resources/subscriptions/subscriptions.module';
 import { PersonsModule } from './resources/persons/persons.module';
 import { CompaniesModule } from './resources/companies/companies.module';
+import { MembersModule } from './resources/members/members.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, SubscriptionsModule, PersonsModule, CompaniesModule],
+  imports: [PrismaModule, UsersModule, AuthModule, SubscriptionsModule, PersonsModule, CompaniesModule, MembersModule],
   controllers: [AppController],
   providers: [
     AppService,

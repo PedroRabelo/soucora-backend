@@ -12,7 +12,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  login       String
+  login       String  @unique
   password    String
   name        String
   email       String  @unique
@@ -105,7 +105,7 @@ enum Role {
 
 enum SubscriptionType {
   FAMILY
-  CORPORATE
+  COMPANY
 }
 
 enum SubscriptionPlan {

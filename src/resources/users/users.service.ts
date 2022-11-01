@@ -11,7 +11,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const data: Prisma.UserCreateInput = {
       ...createUserDto,
-      activateKey: '123456',
+      activateKey: Math.floor(Math.random() * 1000000).toString(),
       password: await bcrypt.hash(createUserDto.password, 10),
     };
 

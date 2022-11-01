@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -18,39 +17,56 @@ export class SubscriptionsService {
       subscriptionType: dto.subscriptionType,
     };
 
-    const { person } = dto;
-    const createPerson: Prisma.PersonCreateOrConnectWithoutSubscriptionsInput =
-      {
-        where: {
-          cpf: person.cpf,
-        },
-        create: {
-          ...person,
+    const { person, company } = dto;
+
+    let data: Prisma.SubscriptionCreateInput;
+    if (dto.subscriptionType === 'COMPANY') {
+      const createCompany: Prisma.CompanyCreateOrConnectWithoutSubscriptionsInput =
+        {
+          where: {
+            cnpj: company.cnpj,
+          },
+          create: {
+            ...company,
+          },
+        };
+
+      data = {
+        ...createSubscription,
+        company: {
+          connectOrCreate: createCompany,
         },
       };
+    } else {
+      const createPerson: Prisma.PersonCreateOrConnectWithoutSubscriptionsInput =
+        {
+          where: {
+            cpf: person.cpf,
+          },
+          create: {
+            ...person,
+          },
+        };
 
-    const data: Prisma.SubscriptionCreateInput = {
-      ...createSubscription,
-      person: createPerson,
-    };
-
-    // TODO Verificar se a assinatura é de pessoa ou empresa
+      data = {
+        ...createSubscription,
+        person: {
+          connectOrCreate: createPerson,
+        },
+      };
+    }
 
     return await this.prisma.subscription.create({
       data: data,
     });
   }
 
-  findAll() {
-    return `This action returns all subscriptions`;
+  async findAll() {
+    return await this.prisma.subscription.findMany();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} subscription`;
-  }
-
-  update(id: number, updateSubscriptionDto: UpdateSubscriptionDto) {
-    return `This action updates a #${id} subscription`;
   }
 
   remove(id: number) {
